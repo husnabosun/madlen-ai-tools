@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { PDFParse } from 'pdf-parse'
 import { GEMINI_MODEL, getGemini, isQuotaError, parseJson } from '@/lib/gemini'
 import type { EssayGrade } from '@/lib/types'
 
@@ -94,6 +93,7 @@ export async function POST(request: Request) {
     if (file.size > MAX_FILE_SIZE) return jsonError('FILE_TOO_LARGE', 'This file is larger than 10 MB. Choose a smaller essay file.', 400)
     const buffer = Buffer.from(await file.arrayBuffer())
     if (file.type === 'application/pdf') {
+      const { PDFParse } = await import('pdf-parse')
       const parser = new PDFParse({ data: buffer })
       const result = await parser.getText()
       await parser.destroy()
