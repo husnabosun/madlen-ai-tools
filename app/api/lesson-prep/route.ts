@@ -4,11 +4,25 @@ import type { LessonPlan } from '@/lib/types'
 
 export const runtime = 'nodejs'
 
+function isMeaningfulTopic(value: string) {
+  const words = value.toLowerCase().match(/[a-zA-ZÀ-ÿÇĞİÖŞÜçğıöşü]+/g) || []
+  const compact = words.join('')
+  if (compact.length < 3 || /^(.)\1+$/.test(compact)) return false
+  if (words.length <= 3 && /^(bad|good|random|test|testing|hello|hi|hey|words?|essay|topic|thing|stuff|asdf|qwerty|lorem|ipsum)(\s|$)/.test(value.trim().toLowerCase())) return false
+  const vowelCount = (compact.match(/[aeiouàâäèéêëîïôöùûüıİöÖüÜ]/gi) || []).length
+  const repeatedWord = new Set(words).size < words.length * 0.6
+  const gibberishPattern = /[bcdfghjklmnpqrstvwxz]{4,}/i.test(compact)
+  return vowelCount > 0 && vowelCount / compact.length >= 0.12 && !repeatedWord && !gibberishPattern
+}
+
 export async function POST(request: Request) {
   try {
     const { gradeLevel, subject, topic, learningGoal } = await request.json()
     if (typeof gradeLevel !== 'string' || !gradeLevel.trim() || typeof topic !== 'string' || !topic.trim()) {
       return NextResponse.json({ error: 'Grade level and topic are required.' }, { status: 400 })
+    }
+    if (!isMeaningfulTopic(topic)) {
+      return NextResponse.json({ error: 'Enter a valid educational topic so Madlen can build a useful lesson.' }, { status: 400 })
     }
     const response = await getGemini().models.generateContent({
       model: GEMINI_MODEL,

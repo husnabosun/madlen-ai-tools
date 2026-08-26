@@ -343,6 +343,17 @@ async function requestJson<T>(url: string, options: RequestInit) {
   return data;
 }
 
+function isMeaningfulTopic(value: string) {
+  const words = value.toLowerCase().match(/[a-zA-ZÀ-ÿÇĞİÖŞÜçğıöşü]+/g) || []
+  const compact = words.join('')
+  if (compact.length < 3 || /^(.)\1+$/.test(compact)) return false
+  if (words.length <= 3 && /^(bad|good|random|test|testing|hello|hi|hey|words?|essay|topic|thing|stuff|asdf|qwerty|lorem|ipsum)(\s|$)/.test(value.trim().toLowerCase())) return false
+  const vowelCount = (compact.match(/[aeiouàâäèéêëîïôöùûüıİöÖüÜ]/gi) || []).length
+  const repeatedWord = new Set(words).size < words.length * 0.6
+  const gibberishPattern = /[bcdfghjklmnpqrstvwxz]{4,}/i.test(compact)
+  return vowelCount > 0 && vowelCount / compact.length >= 0.12 && !repeatedWord && !gibberishPattern
+}
+
 function LoadingSkeleton({ className = "" }: { className?: string }) {
   return (
     <span className={`loading-skeleton ${className}`} aria-hidden="true" />
@@ -412,6 +423,8 @@ function LessonPrep() {
   const generate = async () => {
     if (!gradeLevel || !topic.trim())
       return setError("Choose a grade level and add a topic to continue.");
+    if (!isMeaningfulTopic(topic))
+      return setError("Enter a valid educational topic so Madlen can build a useful lesson.");
     setLoading(true);
     setError("");
     try {
@@ -450,7 +463,7 @@ function LessonPrep() {
             </div>
           </div>
           <label>
-            Grade level
+            Grade level <span className="field-hint">Required</span>
             <select
               value={gradeLevel}
               onChange={(e) => {
@@ -481,7 +494,7 @@ function LessonPrep() {
             </select>
           </label>
           <label>
-            Topic
+            Topic <span className="field-hint">Required</span>
             <input
               value={topic}
               placeholder="The water cycle"
@@ -1239,40 +1252,22 @@ function TypingIndicator() {
   );
 }
 
-function mockStudyBuddyResponse(
-  message: string,
-  history: { role: "user" | "assistant"; content: string }[],
-) {
-  const normalized = message.toLowerCase();
-  const topicMatch = message.match(
-    /(?:explain|tell me about|what is|how does)\s+(.+?)(?:\?|$)/i,
-  );
-  const topic =
-    topicMatch?.[1]?.trim() || message.replace(/[?.!]+$/, "").trim();
-  if (/plant|plants|photosynthesis|leaf|leaves/.test(normalized))
-    return "**Plants** are living things that use sunlight, water, and carbon dioxide to make their own food through photosynthesis. Their roots take in water, while leaves capture sunlight.\n\nWhat part of a plant would you like to explore first?";
-  if (/water cycle|evaporation|condensation/.test(normalized))
-    return "**Evaporation** happens when liquid water gains heat and becomes vapor. **Condensation** happens when that vapor cools and becomes liquid again.\n\nCan you think of a place where you have seen one of these changes?";
-  if (/follow|that|more|again|example/.test(normalized) && history.length > 1)
-    return `Let’s connect that to what we were discussing: **${history[history.length - 2]?.content.slice(0, 70)}**. I can break it into a smaller example if you tell me which part feels unclear.`;
-  return `**${topic}** is a useful topic to investigate. Let’s start with its main idea, then connect it to an example you already know.\n\nWhat do you already understand about ${topic}?`;
+function cleanAssistantResponse(response: string) {
+  return response
+    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "($1 / $2)")
+    .replace(/\\(?:text|mathrm|mathbf)\{([^{}]+)\}/g, "$1")
+    .replace(/\$\$?([^$]+)\$\$?/g, "$1")
+    .replace(/\\\[|\\\]|\\\(|\\\)/g, "")
+    .replace(/\\([%*_{}])/g, "$1")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function StudentChat() {
   const [messages, setMessages] = useState<
     { role: "user" | "assistant"; content: string }[]
-  >([
-    {
-      role: "assistant",
-      content:
-        "Hi! I’m here to help you think it through. What are you working on today?",
-    },
-    {
-      role: "user",
-      content:
-        "I have a science quiz tomorrow. I understand the water cycle, but I keep mixing up evaporation and condensation.",
-    },
-  ]);
+  >([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -1292,11 +1287,12 @@ function StudentChat() {
     setLoading(true);
     setError("");
     try {
-      await new Promise((resolve) => setTimeout(resolve, 650));
-      setMessages([
-        ...next,
-        { role: "assistant", content: mockStudyBuddyResponse(content, next) },
-      ]);
+      const result = await requestJson<{ message: string }>("/api/student-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: next }),
+      });
+      setMessages([...next, { role: "assistant", content: result.message }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Please try again.");
       setMessages(messages);
@@ -1326,6 +1322,8 @@ function StudentChat() {
             </div>
           </div>
           <div className="messages">
+            <div className="message onboarding-message">Hi! I’m here to help you think it through. What are you working on today?</div>
+            <div className="message onboarding-message">I have a science quiz tomorrow. I understand the water cycle, but I keep mixing up evaporation and condensation.</div>
             {messages.map((message, i) => (
               <div
                 className={`message ${message.role === "user" ? "user-message" : ""}`}
@@ -1333,7 +1331,7 @@ function StudentChat() {
               >
                 {message.role === "assistant" ? (
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
+                    {cleanAssistantResponse(message.content)}
                   </ReactMarkdown>
                 ) : (
                   message.content
