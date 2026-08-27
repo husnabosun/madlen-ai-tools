@@ -267,17 +267,18 @@ function Roles() {
     <main className="role-page">
       <div className="role-top">
         <Logo />
-        <span className="eyebrow">AI for curious classrooms</span>
+        <span className="eyebrow">WELCOME TO MADLEN</span>
       </div>
       <div className="role-hero">
-        <span className="eyebrow">WELCOME TO MADLEN</span>
+        <span className="eyebrow">Great teachers, great futures</span>
         <h1>
-            AI for curious
-            <br />
-            <em>classrooms.</em>
+          Bring the Future to Your
+          <br />
+          <em>Classroom with Madlen!</em>
         </h1>
         <p>
-            Thoughtful tools for better teaching and meaningful learning.
+          AI-powered tools designed to support thoughtful teaching and active
+          learning.
         </p>
       </div>
       <div className="role-grid">
@@ -289,8 +290,8 @@ function Roles() {
             <span className="eyebrow">FOR EDUCATORS</span>
             <h2>Teach with more room to think.</h2>
             <p>
-              Plan, assess, and understand your classroom with a little help
-              from Madlen.
+              Plan lessons and understand student work with a little help from
+              Madlen.
             </p>
           </div>
           <span className="card-arrow">→</span>
@@ -1303,7 +1304,7 @@ function StudentChat() {
     <>
       <PageHeader
         eyebrow="STUDENT SPACE"
-        title="Let’s figure it out together."
+        title="Let's figure it out together."
         description="Ask questions, work through ideas, or start with a hint. Madlen helps you think it through."
       />
       <section className="chat-layout">

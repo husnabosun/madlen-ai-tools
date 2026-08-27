@@ -6,7 +6,7 @@ const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans' })
 const dmSerif = DM_Serif_Display({ subsets: ['latin'], weight: '400', variable: '--font-dm-serif' })
 
 export const metadata: Metadata = {
-  title: 'Madlen — AI for curious classrooms',
+  title: 'Madlen',
   description: 'A thoughtful AI workspace for teachers and students.',
   icons: {
     icon: '/madlen-favicon.png',
