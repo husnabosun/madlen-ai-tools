@@ -699,11 +699,10 @@ function EssayGrader() {
   const essayPlaceholder =
     "The most important invention in history is the printing press. Before it was invented, books had to be copied by hand, which made them expensive and rare.\n\nThe printing press changed this by allowing books to be made quickly. More people could learn to read and share ideas. This helped science and education grow across Europe.";
   const [graded, setGraded] = useState<EssayGrade | null>(null);
-  const [activeMode, setActiveMode] = useState<"paste" | "pdf" | "image">("paste");
+  const [activeMode, setActiveMode] = useState<"paste" | "image">("paste");
   const [pasteText, setPasteText] = useState("");
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [gradedMode, setGradedMode] = useState<"paste" | "pdf" | "image" | null>(null);
+  const [gradedMode, setGradedMode] = useState<"paste" | "image" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -712,17 +711,16 @@ function EssayGrader() {
       .querySelector<HTMLTextAreaElement>(".essay-editor")
       ?.setAttribute("placeholder", essayPlaceholder);
   }, []);
-  const chooseMode = (next: "paste" | "pdf" | "image") => {
+  const chooseMode = (next: "paste" | "image") => {
     setActiveMode(next);
   };
   const onFile = (selected: File | undefined) => {
     if (!selected || activeMode === "paste") return;
-    if (activeMode === "pdf") setPdfFile(selected);
     if (activeMode === "image") setImageFile(selected);
     setGraded(null);
     setError("");
   };
-  const file = activeMode === "pdf" ? pdfFile : activeMode === "image" ? imageFile : null;
+  const file = activeMode === "image" ? imageFile : null;
   const grade = async () => {
     if (activeMode === "paste" && !pasteText.trim())
       return setError("Please provide essay text.");
@@ -779,7 +777,6 @@ function EssayGrader() {
           <div className="input-tabs" role="tablist">
             {[
               ["paste", "Paste text"],
-              ["pdf", "Upload PDF"],
               ["image", "Upload image"],
             ].map(([value, label]) => (
               <button
@@ -787,7 +784,7 @@ function EssayGrader() {
                 role="tab"
                 aria-selected={activeMode === value}
                 className={activeMode === value ? "input-tab active" : "input-tab"}
-                onClick={() => chooseMode(value as "paste" | "pdf" | "image")}
+                onClick={() => chooseMode(value as "paste" | "image")}
               >
                 {label}
               </button>
@@ -806,11 +803,7 @@ function EssayGrader() {
                 ref={inputRef}
                 className="sr-only"
                 type="file"
-                accept={
-                  activeMode === "pdf"
-                    ? ".pdf,application/pdf"
-                    : "image/png,image/jpeg,image/jpg"
-                }
+                accept="image/png,image/jpeg,image/jpg"
                 onChange={(e) => onFile(e.target.files?.[0])}
               />
               <button
@@ -844,18 +837,10 @@ function EssayGrader() {
                 ) : (
                   <>
                     <div className="upload-icon">
-                      {activeMode === "pdf" ? (
-                        <FileText size={25} />
-                      ) : (
-                        <Image size={25} />
-                      )}
+                      <Image size={25} />
                     </div>
                     <strong>Upload student work</strong>
-                    <small>
-                      {activeMode === "pdf"
-                        ? "Drag and drop a PDF here, or choose a file."
-                        : "Upload a clear photo or scan of the student's writing."}
-                    </small>
+                    <small>Upload a clear photo or scan of the student's writing.</small>
                     <span className="upload-action">Choose file</span>
                   </>
                 )}
@@ -949,13 +934,13 @@ function EssayGrader() {
 
 function EssayGraderMock() {
   const [graded, setGraded] = useState(false);
-  const [mode, setMode] = useState<"paste" | "pdf" | "image">("paste");
+  const [mode, setMode] = useState<"paste" | "image">("paste");
   const [essay, setEssay] = useState(
     "The most important invention in history is the printing press. Before it was invented, books had to be copied by hand, which made them expensive and rare.\n\nThe printing press changed this by allowing books to be made quickly. More people could learn to read and share ideas. This helped science and education grow across Europe.",
   );
   const [file, setFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const chooseMode = (next: "paste" | "pdf" | "image") => {
+  const chooseMode = (next: "paste" | "image") => {
     setMode(next);
     setFile(null);
     setGraded(false);
@@ -987,7 +972,6 @@ function EssayGraderMock() {
           <div className="input-tabs" role="tablist">
             {[
               ["paste", "Paste text"],
-              ["pdf", "Upload PDF"],
               ["image", "Upload image"],
             ].map(([value, label]) => (
               <button
@@ -995,7 +979,7 @@ function EssayGraderMock() {
                 role="tab"
                 aria-selected={mode === value}
                 className={mode === value ? "input-tab active" : "input-tab"}
-                onClick={() => chooseMode(value as "paste" | "pdf" | "image")}
+                onClick={() => chooseMode(value as "paste" | "image")}
               >
                 {label}
               </button>
@@ -1014,11 +998,7 @@ function EssayGraderMock() {
                 ref={inputRef}
                 className="sr-only"
                 type="file"
-                accept={
-                  mode === "pdf"
-                    ? ".pdf,application/pdf"
-                    : "image/png,image/jpeg,image/jpg"
-                }
+                accept="image/png,image/jpeg,image/jpg"
                 onChange={(e) => onFile(e.target.files?.[0])}
               />
               <button
@@ -1052,18 +1032,10 @@ function EssayGraderMock() {
                 ) : (
                   <>
                     <div className="upload-icon">
-                      {mode === "pdf" ? (
-                        <FileText size={25} />
-                      ) : (
-                        <Image size={25} />
-                      )}
+                      <Image size={25} />
                     </div>
                     <strong>Upload student work</strong>
-                    <small>
-                      {mode === "pdf"
-                        ? "Drag and drop a PDF here, or choose a file."
-                        : "Upload a clear photo or scan of the student's writing."}
-                    </small>
+                    <small>Upload a clear photo or scan of the student's writing.</small>
                     <span className="upload-action">Choose file</span>
                   </>
                 )}

@@ -4,7 +4,7 @@ import type { EssayGrade } from '@/lib/types'
 
 export const runtime = 'nodejs'
 const MAX_FILE_SIZE = 10 * 1024 * 1024
-const allowedTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'])
+const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/jpg'])
 const insufficientMessage = "There isn't enough writing here to provide a meaningful assessment yet. Add a few complete sentences that develop your idea, then try again."
 
 function jsonError(code: string, error: string, status: number) {
@@ -87,20 +87,11 @@ export async function POST(request: Request) {
       return NextResponse.json(await grade(essay.trim(), 'pasted text'))
     }
     const file = form.get('file')
-    if (!(file instanceof File)) return jsonError('FILE_REQUIRED', 'Please choose a PDF or image of the student essay.', 400)
-    if (!allowedTypes.has(file.type)) return jsonError('UNSUPPORTED_FILE_TYPE', 'This file type is not supported. Choose a PDF, JPG, JPEG, or PNG file.', 400)
+    if (!(file instanceof File)) return jsonError('FILE_REQUIRED', 'Please choose an image of the student essay.', 400)
+    if (!allowedTypes.has(file.type)) return jsonError('UNSUPPORTED_FILE_TYPE', 'This file type is not supported. Choose a JPG, JPEG, or PNG file.', 400)
     if (file.size === 0) return jsonError('EMPTY_FILE', 'The selected file is empty. Choose a different essay file.', 400)
     if (file.size > MAX_FILE_SIZE) return jsonError('FILE_TOO_LARGE', 'This file is larger than 10 MB. Choose a smaller essay file.', 400)
     const buffer = Buffer.from(await file.arrayBuffer())
-    if (file.type === 'application/pdf') {
-      const { PDFParse } = await import('pdf-parse')
-      const parser = new PDFParse({ data: buffer })
-      const result = await parser.getText()
-      await parser.destroy()
-      if (!result.text.trim()) return jsonError('PDF_NO_TEXT', 'No readable text was found in this PDF. Try a text-based PDF or upload an image instead.', 400)
-      if (isInsufficientText(result.text)) return NextResponse.json(insufficientResult())
-      return NextResponse.json(await grade(result.text, 'PDF text'))
-    }
     console.info('[essay-grader] Gemini request start', { source: 'image', model: GEMINI_MODEL, mimeType: file.type, fileSize: file.size })
     const response = await getGemini().models.generateContent({ model: GEMINI_MODEL, contents: { parts: [{ text: 'Read the submitted student essay in this image and evaluate it using the exact JSON schema. Quote only short exact excerpts visible in the essay.' }, { inlineData: { mimeType: file.type, data: buffer.toString('base64') } }] }, config: { systemInstruction: 'Apply the Madlen Essay Grader rubric: score exactly four criteria from 0 to 25, return maxScore 25 and evidence-based deductions totaling exactly 25 minus each score, omit deductions at 25/25, make overallScore equal the four-score sum, provide inline exact excerpts, and finish with one strength plus one next step. Be constructive, age-appropriate, concise, and do not rewrite the essay.', responseMimeType: 'application/json', responseSchema: schema } })
     console.info('[essay-grader] Gemini response received', { source: 'image', hasText: Boolean(response.text), textLength: response.text?.length ?? 0 })
@@ -109,7 +100,7 @@ export async function POST(request: Request) {
     console.error('[essay-grader] request failure', getSafeError(error))
     if (isQuotaError(error)) return jsonError('GEMINI_QUOTA', 'Gemini is temporarily unavailable because the API quota has been reached. Check your Gemini billing or try again later.', 429)
     const providerError = getSafeError(error)
-    if (providerError.status === 400) return jsonError('AI_INPUT_ERROR', 'The essay file could not be processed. Check that it is a clear, readable PDF or image and try again.', 400)
+    if (providerError.status === 400) return jsonError('AI_INPUT_ERROR', 'The essay image could not be processed. Check that it is clear and readable, then try again.', 400)
     if (error instanceof SyntaxError || providerError.message?.includes('inconsistent grading rubric') || providerError.message?.includes('empty response')) return jsonError('INVALID_AI_RESPONSE', 'The grading response was incomplete. Please try again.', 502)
     if (providerError.message === 'GEMINI_API_KEY is not configured.') return jsonError('MISSING_GEMINI_KEY', 'The grading service is not configured. Add GEMINI_API_KEY and restart the server.', 503)
     return jsonError('GRADING_FAILED', 'We could not grade this essay right now. Please try again.', 500)
