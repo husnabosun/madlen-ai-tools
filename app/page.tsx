@@ -272,13 +272,12 @@ function Roles() {
       <div className="role-hero">
         <span className="eyebrow">WELCOME TO MADLEN</span>
         <h1>
-          Learning, made
-          <br />
-          <em>human.</em>
+            AI for curious
+            <br />
+            <em>classrooms.</em>
         </h1>
         <p>
-          One calm, clever space for teachers to create better lessons and
-          students to find their way.
+            Thoughtful tools for better teaching and meaningful learning.
         </p>
       </div>
       <div className="role-grid">
@@ -302,10 +301,10 @@ function Roles() {
           </div>
           <div>
             <span className="eyebrow">FOR STUDENTS</span>
-            <h2>Get unstuck, your way.</h2>
+            <h2>Learn by thinking it through.</h2>
             <p>
-              A patient study companion that helps you discover the answer, not
-              just find it.
+              Work through questions with guidance that helps you understand,
+              not just get the answer.
             </p>
           </div>
           <span className="card-arrow">→</span>
@@ -449,7 +448,7 @@ function LessonPrep() {
       <PageHeader
         eyebrow="TEACHER TOOLKIT / 01"
         title="Build a lesson with intention."
-        description="Turn a spark of an idea into a thoughtful, ready-to-teach plan."
+          description="Turn a topic into a thoughtful, ready-to-teach plan."
       />
       <section className="workspace-grid">
         <div className="panel setup-panel">
@@ -595,7 +594,7 @@ function LessonPrepMock() {
       <PageHeader
         eyebrow="TEACHER TOOLKIT / 01"
         title="Build a lesson with intention."
-        description="Turn a spark of an idea into a thoughtful, ready-to-teach plan."
+        description="Turn a topic into a thoughtful, ready-to-teach plan."
       />
       <section className="workspace-grid">
         <div className="panel setup-panel">
@@ -685,8 +684,7 @@ function LessonPrepMock() {
               </div>
               <h2>Your lesson will take shape here.</h2>
               <p>
-                Start with a topic on the left. Madlen will help you find the
-                through-line.
+                Add a topic on the left to start building your lesson plan.
               </p>
             </div>
           )}
@@ -764,7 +762,7 @@ function EssayGrader() {
       <PageHeader
         eyebrow="TEACHER TOOLKIT / 02"
         title="Feedback that moves learning forward."
-        description="See the thinking behind every piece of writing, then respond with clarity and care."
+        description="Turn student writing into clear, actionable feedback."
       />
       <section className="grader-grid">
         <div className="panel essay-panel">
@@ -937,8 +935,8 @@ function EssayGrader() {
               </div>
               <h2>Your feedback will appear here.</h2>
               <p>
-                Submit an essay when you are ready, and Madlen will help you
-                find the next useful conversation.
+                Submit an essay to see strengths, patterns, and a clear next
+                step.
               </p>
             </div>
           )}
@@ -972,7 +970,7 @@ function EssayGraderMock() {
       <PageHeader
         eyebrow="TEACHER TOOLKIT / 02"
         title="Feedback that moves learning forward."
-        description="See the thinking behind every piece of writing, then respond with clarity and care."
+        description="Turn student writing into clear, actionable feedback."
       />
       <section className="grader-grid">
         <div className="panel essay-panel">
@@ -1136,8 +1134,8 @@ function EssayGraderMock() {
               </div>
               <h2>Your feedback will appear here.</h2>
               <p>
-                Submit an essay when you are ready, and Madlen will help you
-                find the next useful conversation.
+                Submit an essay to see strengths, patterns, and a clear next
+                step.
               </p>
             </div>
           )}
@@ -1154,7 +1152,7 @@ function EssayGraderLegacy() {
       <PageHeader
         eyebrow="TEACHER TOOLKIT / 02"
         title="Feedback that moves learning forward."
-        description="See the thinking behind every piece of writing, then respond with clarity and care."
+        description="Turn student writing into clear, actionable feedback."
       />
       <section className="grader-grid">
         <div className="panel essay-panel">
@@ -1230,9 +1228,10 @@ function EssayGraderLegacy() {
               <div className="empty-orbit">
                 <PenLine size={30} />
               </div>
-              <h2>Thoughtful feedback awaits.</h2>
+              <h2>Your feedback will appear here.</h2>
               <p>
-                Submit an essay to see patterns, strengths, and a next step.
+                Submit an essay to see strengths, patterns, and a clear next
+                step.
               </p>
             </div>
           )}
@@ -1305,7 +1304,7 @@ function StudentChat() {
       <PageHeader
         eyebrow="STUDENT SPACE"
         title="Let’s figure it out together."
-        description="Ask a question, share what you know, or start with a hint. There is no wrong place to begin."
+        description="Ask questions, work through ideas, or start with a hint. Madlen helps you think it through."
       />
       <section className="chat-layout">
         <div className="panel chat-panel">
@@ -1317,13 +1316,12 @@ function StudentChat() {
               <h2>Madlen Study Buddy</h2>
               <p>
                 <span className="online-dot" />{" "}
-                {loading ? "Thinking..." : "Here to help you learn"}
+                {loading ? "Thinking..." : "Ready to work it through"}
               </p>
             </div>
           </div>
           <div className="messages">
             <div className="message onboarding-message">Hi! I’m here to help you think it through. What are you working on today?</div>
-            <div className="message onboarding-message">I have a science quiz tomorrow. I understand the water cycle, but I keep mixing up evaporation and condensation.</div>
             {messages.map((message, i) => (
               <div
                 className={`message ${message.role === "user" ? "user-message" : ""}`}
@@ -1378,10 +1376,11 @@ function StudentChat() {
           <div className="side-illustration">
             <Sparkles size={25} />
           </div>
-          <span className="eyebrow">A SMALL REMINDER</span>
-          <h2>You already know more than you think.</h2>
+          <span className="eyebrow">WAYS TO WORK</span>
+          <h2>Build understanding step by step.</h2>
           <p>
-            Good questions are not interruptions. They are how learning starts.
+            Ask for a hint, an explanation, or a quick quiz as you work through
+            an idea.
           </p>
         </aside>
       </section>
