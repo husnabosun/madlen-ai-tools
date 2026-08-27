@@ -1241,6 +1241,7 @@ function StudentChat() {
     { role: "user" | "assistant"; content: string }[]
   >([]);
   const [input, setInput] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1253,6 +1254,10 @@ function StudentChat() {
   const send = async () => {
     const content = input.trim();
     if (!content || loading) return;
+    if (!gradeLevel) {
+      setError("Choose a grade level before sending your question.");
+      return;
+    }
     const next = [...messages, { role: "user" as const, content }];
     setMessages(next);
     setInput("");
@@ -1262,7 +1267,7 @@ function StudentChat() {
       const result = await requestJson<{ message: string }>("/api/student-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, gradeLevel }),
       });
       setMessages([...next, { role: "assistant", content: result.message }]);
     } catch (err) {
@@ -1292,6 +1297,24 @@ function StudentChat() {
                 {loading ? "Thinking..." : "Ready to work it through"}
               </p>
             </div>
+          </div>
+          <div className="chat-grade">
+            <label>
+              Grade level <span className="field-hint">Required</span>
+              <select
+                value={gradeLevel}
+                disabled={loading}
+                onChange={(e) => {
+                  setGradeLevel(e.target.value);
+                  setError("");
+                }}
+              >
+                <option value="">Select a grade level</option>
+                {Array.from({ length: 12 }, (_, index) => (
+                  <option key={index + 1}>Grade {index + 1}</option>
+                ))}
+              </select>
+            </label>
           </div>
           <div className="messages">
             <div className="message onboarding-message">Hi! I’m here to help you think it through. What are you working on today?</div>
